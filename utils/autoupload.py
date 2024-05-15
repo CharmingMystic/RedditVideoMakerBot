@@ -137,7 +137,7 @@ def resumable_upload(insert_request):
             time.sleep(sleep_seconds)
 
 
-def upload(file, title="Reddit Story", description="", category="entartainment", keywords="reddit, story", privacyStatus=VALID_PRIVACY_STATUSES[0]):
+def upload(file, title="Reddit Story", description="", category=24, keywords="reddit, story", privacyStatus=VALID_PRIVACY_STATUSES[0]):
 
     youtube = get_authenticated_service()
 
