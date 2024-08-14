@@ -10,7 +10,6 @@ from utils.console import handle_input
 console = Console()
 config = dict  # autocomplete
 
-
 def crawl(obj: dict, func=lambda x, y: print(x, y, end="\n"), path=None):
     if path is None:  # path Default argument value is mutable
         path = []
@@ -164,6 +163,18 @@ If you see any prompts, that means that you have unset/incorrectly set variables
         toml.dump(config, f)
     return config
 
+def set_var(cat, var, value):
+    global config
+
+    config[cat][var] = value
+    with open("config.toml", "w") as f:
+        toml.dump(config, f)
+
+def set_var2(cat, cat2, var, value):
+    global config
+    config[cat][cat2][var] = value
+    with open("config.toml", "w") as f:
+        toml.dump(config, f)
 
 if __name__ == "__main__":
     directory = Path().absolute()
