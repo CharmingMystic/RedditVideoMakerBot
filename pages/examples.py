@@ -12,7 +12,6 @@ st.title("Examples")
 st.write("Using capcut, storymode, preset 18")
 st.video("https://youtube.com/embed/eKYUeiDmZ88?si=GmddrcWM2KmG2_wL")
 
-
 with st.sidebar:
     st.page_link("GUI.py", label="Home")
     st.page_link("pages/settings.py", label="Settings")
