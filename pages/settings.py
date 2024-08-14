@@ -109,8 +109,8 @@ st.slider(
     key="min_comment_length"
 )
 
-
-
 with st.sidebar:
     st.page_link("GUI.py", label="Home")
     st.page_link("pages/settings.py", label="Settings")
+    st.page_link("pages/examples.py", label="Examples")
+    st.page_link("pages/voices.py", label="Voices")
