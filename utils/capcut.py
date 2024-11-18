@@ -161,7 +161,7 @@ def generate_captions(file_path, title):
                 break
             except:
                 div.hover()
-                page.mouse.wheel(0, 100)
+                page.mouse.wheel(0, 300)
                 time.sleep(0.5)
 
         time.sleep(2)
@@ -171,7 +171,9 @@ def generate_captions(file_path, title):
         time.sleep(1)
 
         page.fill("//input[@value='-672']", "0") # Center it
+        page.keyboard.press("Enter")
         page.fill("//input[@value='100' and @aria-valuemax='500']", str(settings.config['capcut']['text_size'])) # Set scale
+        page.keyboard.press("Enter")
 
         time.sleep(2)
 
