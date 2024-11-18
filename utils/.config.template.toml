@@ -12,7 +12,8 @@ password = { optional = false, nmin = 8, explanation = "The password of your red
 email = { optional = false, nmin = 3, nmax = 50, explanation = "The email of your CapCut account", example = "" }
 password = { optional = false, nmin = 8, explanation = "The password of your CapCut account", example = "" }
 cloud_id = { optional = false, nmin = 8, type = "int", explanation = "The cloud id of your CapCut account", example = "" }
-preset_number = { optional = true, default = 18, type = "int", explanation = "The preset number of your CapCut account", example = 1 }
+text_size = { optional = true, default = 150, type = "int", explanation = "The size of the text", example = 200 }
+preset_id = { optional = true, default = 7408331926831910150, type = "int", explanation = "The ID for the preset to use", example = 7408331926831910150 }
 
 [reddit.thread]
 random = { optional = true, options = [

@@ -1,5 +1,4 @@
 import streamlit as st
-
 from utils import settings
 
 st.set_page_config(page_title="RedditVideoMakerBot", page_icon="🤖", layout="wide")

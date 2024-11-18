@@ -12,15 +12,33 @@ from utils import settings
 
 # Utils
 def check_similarity(video_title, text):
-        video_title_words = set(video_title.lower().split())
-        text_words = set(text.lower().split())
+    video_title_words = set(video_title.lower().split())
+    text_words = set(text.lower().split())
 
-        common_words = text_words.intersection(video_title_words)
+    common_words = text_words.intersection(video_title_words)
 
-        return len(common_words) / len(text_words) >= 0.6
+    return len(common_words) / len(text_words) >= 0.6
+
+def close_guide_popups(page):
+    """
+    This function closes the guide popups that appear on the capcut website.
+    """
+
+    while True:
+        try:
+            page.click("(//div[contains(@class,'guide-close-icon-')])[1]", timeout=5000)
+        except Exception as e:
+            print("----- Dont worry, this is normal -----")
+            print(e)
+            print("--------------------------------------")
+            break
 
 # Runthrough
 def generate_captions(file_path, title):
+    """
+    This function generates captions for a video file using capcut.
+    """
+
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=False)
         context = browser.new_context(viewport={"width": 1920, "height": 1080})
@@ -50,16 +68,14 @@ def generate_captions(file_path, title):
         page.click("//span[contains(text(),'Sign in')]")
 
         try:
-            page.click("//div[@class='skip--kncMC']")
-
+            page.click("//div[@class='skip--kncMC']", timeout=10000)
         except:
             pass
 
         page.goto(f"https://www.capcut.com/my-cloud/{str(settings.config['capcut']['cloud_id'])}?start_tab=video&enter_from=page_header&from_page=work_space&tab=all")
 
         try:
-            page.click("//span[contains(text(),'Decline all')]")
-
+            page.click("//span[contains(text(),'Decline all')]", timeout=10000)
         except:
             pass
 
@@ -87,45 +103,26 @@ def generate_captions(file_path, title):
 
         page.goto("https://www.capcut.com/editor?enter_from=create_new&current_page=landing_page&from_page=work_space&start_tab=video&__action_from=my_draft&position=my_draft&scenario=youtube_ads&scale=9%3A16")
 
+        time.sleep(5)
+
+        print("Closing guide popups")
+        close_guide_popups(page)
+
         print("Uploading video")
-        if page.is_visible("//div[@class='guide-close-icon-f8J9FZ']//*[name()='svg']"):
-            page.click("//div[@class='guide-close-icon-f8J9FZ']//*[name()='svg']")
 
-        if page.is_visible("//div[@class='guide-placeholder-before-OsTdXF']"):
-            page.click("//div[@class='guide-placeholder-before-OsTdXF']")
-
-        if page.is_visible("//div[@class='guide-close-icon-f8J9FZ']//*[name()='svg']"):
-            page.click("//div[@class='guide-close-icon-f8J9FZ']//*[name()='svg']")
-
-        if page.is_visible("//div[@class='guide-close-icon-Gtxdju']//*[name()='svg']"):
-            page.click("//div[@class='guide-close-icon-Gtxdju']//*[name()='svg']")
-
-        if page.is_visible("//div[@class='guide-close-icon-Gtxdju']"):
-            page.click("//div[@class='guide-close-icon-Gtxdju']")
-
-        if page.is_visible("//div[@class='guide-close-icon-Gtxdju'][1]"):
-            page.click("//div[@class='guide-close-icon-Gtxdju'][1]")
-
-        if page.is_visible("//div[@class='guide-close-icon-OwPlMC']"):
-            page.click("//div[@class='guide-close-icon-OwPlMC']")
-
-        while True:
-            try:
-                page.click("div[class^='guide-close-icon-']", timeout=1000)
-            except:
-                break
-
-
-        page.set_input_files("(//input[@type='file'])[1]", file_path)
-
-        time.sleep(2)
-
-        page.click("//div[@class='tools-97tWCU']")
-        page.click("(//li[@role='option'])[5]")
+        page.set_input_files("(//input[@type='file'])[1]", file_path) # Upload video
 
         time.sleep(18)
 
+        print("Closing guide popups")
+        close_guide_popups(page)
+
         page.click("//div[@id='siderMenuCaption']//div[@class='menu-inner-box']//*[name()='svg']")
+        # this will close a popup which intercepts canvas-ratio-select
+        # so i put it before it
+
+        page.click("//div[@class='canvas-ratio-select']")
+        page.click("(//li[@role='option'])[5]") # Set ratio to 9:16
 
         page.click("//div[normalize-space()='Auto captions']")
 
@@ -133,7 +130,6 @@ def generate_captions(file_path, title):
         while not video_ready:
             page.click("//footer[@class='active-panel']//span[contains(text(),'Generate')]")
             try:
-                # check if class="lv-message lv-message-error" is visible
                 if page.locator("//div[@class='lv-message lv-message-error']").is_visible():
                     video_ready = False
                 else:
@@ -147,25 +143,35 @@ def generate_captions(file_path, title):
 
         page.click("//div[@id='workbench-tool-bar-toolbarTextPreset']")
 
-        time.sleep(20)
+        time.sleep(2)
 
         page.click("//div[@id='lv-tabs-1-tab-1']")
 
-        time.sleep(1)
+        time.sleep(3)
 
-        page.click(f"(//img[@class='image-E7GTkW'])[{str(settings.config['capcut']['preset_number'])}]")
+        print("Selecting preset")
+
+        div = page.locator("(//*[@class='ReactVirtualized__Collection__innerScrollContainer'])[2]") # Container with text presets
+        btn = page.locator(f"//*[@id='{settings.config['capcut']['preset_id']}']") # The preset
+
+        while True: # SCROLL
+            try:
+                btn.scroll_into_view_if_needed(timeout=2000)
+                btn.click(timeout=2000)
+                break
+            except:
+                div.hover()
+                page.mouse.wheel(0, 100)
+                time.sleep(0.5)
 
         time.sleep(2)
 
         page.click("//div[@id='workbench-tool-bar-toolbarTextBasic']//div[@class='tool-bar-icon']//*[name()='svg']")
 
-        time.sleep(2)
-
-        page.fill("//input[@value='-672']", "0")
-
         time.sleep(1)
 
-        page.fill("//input[@value='100' and @aria-valuemax='500']", "150")
+        page.fill("//input[@value='-672']", "0") # Center it
+        page.fill("//input[@value='100' and @aria-valuemax='500']", str(settings.config['capcut']['text_size'])) # Set scale
 
         time.sleep(2)
 
@@ -188,7 +194,7 @@ def generate_captions(file_path, title):
 
         page.click("//div[contains(@data-id,'titlebarExport')]//div[contains(@style,'position: relative;')]")
 
-        page.click("//div[contains(@class,'content_7ddfe')]")
+        page.click("//div[contains(@class,'download-more-video-TCr9js')]")
 
         page.fill("//input[@id='form-video_name_input']", video_file_name )
 
@@ -208,16 +214,14 @@ def generate_captions(file_path, title):
 
         page.click("//button[@id='export-confirm-button']")
 
-        time.sleep(35)
+        while not page.locator("//a[@class='shadowAnchor-hA3lTF']").is_visible():
+            time.sleep(1) # Wait until export finishes
 
-        while not page.locator("//a[@class='shadowAnchor_5bc06']").is_visible():
-            time.sleep(5)
-
-        with page.expect_download() as download_info:
-            page.locator("//a[@class='shadowAnchor_5bc06']").click()
+        with page.expect_download() as download_info: # Click "download"
+            page.locator("//a[@class='shadowAnchor-hA3lTF']").click()
 
         dl = download_info.value
-        print(dl.path())
+        print(dl.path()) # debug
         working_dir_path = os.getcwd()
 
         os.makedirs(os.path.join(working_dir_path, "capcut_results", "videos"), exist_ok=True)
