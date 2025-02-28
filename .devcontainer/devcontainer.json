@@ -1,0 +1,7 @@
+{
+  "name": "Python 3.10",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+"features": {
+    "python": "3.10"
+  }
+}
